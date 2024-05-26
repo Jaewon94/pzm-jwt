@@ -18,7 +18,7 @@ public class CustomerUser extends User {
 
     public static Collection<? extends GrantedAuthority> makeConvertRole(List<String> list){
         return list.stream()
-                .map(role->new SimpleGrantedAuthority("ROLE_"+role))
+                .map(role->new SimpleGrantedAuthority("ROLE_"+role.trim()))
                 .collect(Collectors.toList());
     }
     public Customer getCustomer() {

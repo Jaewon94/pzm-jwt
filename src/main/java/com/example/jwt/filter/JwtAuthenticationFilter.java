@@ -14,6 +14,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
@@ -67,6 +68,13 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
                 .withExpiresAt(new Date(System.currentTimeMillis()+(JwtProperties.EXPIRATION_TIME))) // 10분 만료시간 -> 고려?
                 .withClaim("id", customerUser.getCustomer().getId())
                 .withClaim("username", customerUser.getCustomer().getUsername())
+
+                // 권한 정보(List -> Array -> String[]
+                .withArrayClaim("authorities", customerUser.getAuthorities()
+                        .stream()
+                        .map(GrantedAuthority::getAuthority)
+                        .toArray(String[]::new)// [ROLE_USER, ROLE_MANAGER, ROLE_ADMIN]
+                )
                 .sign(Algorithm.HMAC256(JwtProperties.SECRET)); // cosin 암호화
          response.addHeader(JwtProperties.HEADER_STRING, JwtProperties.TOKEN_PREFIX+jwtToken);    // 포스트멘에서 확인
                                                       // Authorization(권한)

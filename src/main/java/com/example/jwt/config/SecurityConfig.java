@@ -1,7 +1,9 @@
 package com.example.jwt.config;
 
 import com.example.jwt.filter.JwtAuthenticationFilter;
+import com.example.jwt.filter.JwtAuthorizationFilter;
 import com.example.jwt.service.CustomerService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -13,6 +15,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
+@RequiredArgsConstructor
 public class SecurityConfig {
     @Autowired
     private CorsConfig corsConfig;
@@ -20,6 +23,8 @@ public class SecurityConfig {
     public BCryptPasswordEncoder passwordEncoder(){
         return new BCryptPasswordEncoder();
     }
+
+    private final CustomerService customerService;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception{
@@ -50,7 +55,8 @@ public class SecurityConfig {
                 http
                         .addFilter(corsConfig.corsFilter())
                        // 추가적인 필터 2개를 등록....
-                        .addFilter(new JwtAuthenticationFilter(authenticationManager)); // AuthenticationManager
+                        .addFilter(new JwtAuthenticationFilter(authenticationManager)) // AuthenticationManager
+                        .addFilter(new JwtAuthorizationFilter(authenticationManager, customerService));
         }
     }
 }
